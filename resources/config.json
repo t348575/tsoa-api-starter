@@ -1,0 +1,51 @@
+{
+    "port": 443,
+    "serverAddress": "https://localhost",
+    "host": "localhost",
+    "user": "root",
+    "dbPort": 3306,
+    "password": "kanichai",
+    "database": "wudfurn",
+    "instances": 0,
+    "privateKey": "./build/resources/key.pem",
+    "publicKey": "./build/resources/cert.pem",
+    "gmailApiCredentials": "./credentials.json",
+    "forgetPasswordTimeout": 3600,
+    "forgetPasswordURL": "https://localhost:8080/forget",
+    "internalAccessKey": "some hashed password",
+    "forgetPasswordEmailTemplate": "./forgotPassword.html",
+    "addLeadSMSText": "Thanks For Visiting Wudfurn, Hope we would able to provide your requirement",
+    "workReportBossNotification": [
+        {
+            "time": "0 18 * * *",
+            "text": "{{fname}} {{role}} has not added the WorkReport.",
+            "roles": [13]
+        },
+        {
+            "time": "0 20 * * *",
+            "text": "{{fname}} {{role}} has not added the WorkReport.",
+            "roles": [13]
+        }
+    ],
+    "workReportRoleNotification": [
+        {
+            "time": "0 18 * * *",
+            "text": "We have not received today's work report from you, Please update your WorkReport as soon as possible.",
+            "roles": [3, 4, 15]
+        },
+        {
+            "time": "0 20 * * *",
+            "text": "We have not received today's work report from you, Please update your WorkReport as soon as possible.",
+            "roles": [3, 4, 15]
+        }
+    ],
+    "workReportSubmittedTextBoss": "{{fname}} {{role}} has successfully added the WorkReport",
+    "workReportSubmittedText": "You have successfully submitted the WorkReport",
+    "leadAddedText": "{{fname}} {{role}} has added a new lead",
+    "leadConversion": "{{fname}} {{role}} has converted a lead to customer",
+    "leadCustomerEdit": "{{fname}} {{role}} has edited a {{action}}",
+    "holidayDeclare": "{{fname}} {{role}} has declared holiday from {{date_from}} to {{date_to}}",
+    "customerStatusChange": "Your order's status has been changed, Please login to View it.",
+    "oneSignalAppID": "4c452a20-a549-4b92-9be3-f9ffc46acf13",
+    "oneSignalAPIKey": "YTRlZDAwZjQtMGMwOS00MGJjLTg5ZTctODAwMzM1NzYxZmJh"
+}

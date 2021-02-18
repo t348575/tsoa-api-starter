@@ -1,0 +1,30 @@
+{
+    "entryFile": "src/server.ts",
+    "noImplicitAdditionalProperties": "silently-remove-extras",
+    "spec": {
+        "specMerging": "recursive",
+        "outputDirectory": "build/src",
+        "specVersion": 3,
+        "entryFile": "src/server.ts",
+        "securityDefinitions": {
+            "oauth2": {
+                "type": "oauth2",
+                "authorizationUrl": "https://localhost/oauth/login",
+                "tokenUrl": "https://localhost/oauth/token",
+                "refreshUrl": "https://localhost/oauth/refresh",
+                "flow": "accessCode",
+                "scopes": {
+                    "a": "abc",
+                    "b": "cde"
+                }
+            }
+        }
+    },
+    "routes": {
+        "routesDir": "src/routes",
+        "middleware": "express",
+        "iocModule": "src/ioc",
+        "authenticationModule": "src/shared/authentication-module.ts",
+        "controllerPathGlobs": ["src/routes/**/*controller.ts"]
+    }
+}
