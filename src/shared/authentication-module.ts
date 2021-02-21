@@ -63,7 +63,7 @@ export function expressAuthentication(
 									req.query.hasOwnProperty('id_token') && typeof req.query.id_token === 'string' && req.query.id_token.length > 0 &&
 									req.query.hasOwnProperty('refresh_token') && typeof req.query.refresh_token === 'string' && req.query.refresh_token.length > 0
 								) {
-									decipherJWT(req.query.refresh_token, 'refreshToken')
+									decipherJWT(req.query.id_token, 'idToken')
 										.then(async (idToken) => {
 											for (const scope of scopes) {
 												if (!idToken.scope.includes(scope)) {
