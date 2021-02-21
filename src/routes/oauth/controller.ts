@@ -42,10 +42,14 @@ export class AuthController extends Controller {
 		@Query() username: string,
 		@Query() password: string,
 		@Query('code_challenge') codeChallenge: string,
-		@Query('code_challenge_method') codeChallengeMethod: acceptedChallengeMethods
+		@Query('code_challenge_method') codeChallengeMethod: acceptedChallengeMethods,
+		@Query('id_token') idToken ?: string
 	) {
 		if (username && password && codeChallenge) {
 			return this.service.authorize(username, password, codeChallenge, state, redirectUri, clientId, scope, (<any>request).res as ExResponse);
+		}
+		else if (idToken && codeChallenge) {
+			return this.service.autoLogin(idToken, codeChallenge, state, redirectUri, clientId, scope, (<any>request).res as ExResponse);
 		}
 		else {
 			throw new OAuthError({ name: 'invalid_request', error_description: 'Invalid parameters' });

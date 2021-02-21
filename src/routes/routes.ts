@@ -147,6 +147,7 @@ export function RegisterRoutes(app: express.Router) {
                     password: {"in":"query","name":"password","required":true,"dataType":"string"},
                     codeChallenge: {"in":"query","name":"code_challenge","required":true,"dataType":"string"},
                     codeChallengeMethod: {"in":"query","name":"code_challenge_method","required":true,"ref":"acceptedChallengeMethods"},
+                    idToken: {"in":"query","name":"id_token","dataType":"string"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

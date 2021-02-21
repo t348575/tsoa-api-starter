@@ -38,18 +38,22 @@ export function expressAuthentication(
 								if (req.body.hasOwnProperty('refresh_token') && typeof req.body.refresh_token === 'string' && req.body.refresh_token.length > 0) {
 									decipherJWT(req.body.refresh_token, 'refreshToken')
 									.then(async (refreshToken) => {
-										for (const scope of scopes) {
-											if (!refreshToken.scope.includes(scope)) {
-												reject(new OAuthError({ name: 'invalid_scope', error_description: 'JWT does not contain required scope'}));
+										try {
+											for (const scope of scopes) {
+												if (!refreshToken.scope.includes(scope)) {
+													reject(new OAuthError({ name: 'invalid_scope', error_description: 'JWT does not contain required scope'}));
+												}
 											}
-										}
-										if (await redis.exists(`refreshToken::${refreshToken.id}::${refreshToken.exp}`)) {
-											// @ts-ignore
-											req.userRefresh = refreshToken;
-											resolve(accessToken);
-										}
-										else {
-											reject(new OAuthError({ name: 'access_denied', error_description: 'Token does not exist' }));
+											if (await redis.exists(`refreshToken::${refreshToken.id}::${refreshToken.exp}`)) {
+												// @ts-ignore
+												req.userRefresh = refreshToken;
+												resolve(accessToken);
+											}
+											else {
+												reject(new OAuthError({ name: 'access_denied', error_description: 'Token does not exist' }));
+											}
+										} catch(err) {
+											reject(new OAuthError({ name: 'server_error', error_description: err.message }));
 										}
 									})
 									.catch(err => reject(new OAuthError({ name: 'invalid_request', error_description: 'Invalid refresh token'})));
@@ -58,36 +62,44 @@ export function expressAuthentication(
 									reject(new OAuthError({ name: 'invalid_request', error_description: 'Refresh token is required' }));
 								}
 							}
-							if (securityName === 'userId') {
+							else if (securityName === 'userId') {
 								if (
 									req.query.hasOwnProperty('id_token') && typeof req.query.id_token === 'string' && req.query.id_token.length > 0 &&
 									req.query.hasOwnProperty('refresh_token') && typeof req.query.refresh_token === 'string' && req.query.refresh_token.length > 0
 								) {
 									decipherJWT(req.query.id_token, 'idToken')
 										.then(async (idToken) => {
-											for (const scope of scopes) {
-												if (!idToken.scope.includes(scope)) {
-													reject(new OAuthError({ name: 'invalid_scope', error_description: 'JWT does not contain required scope'}));
+											try {
+												for (const scope of scopes) {
+													if (!idToken.scope.includes(scope)) {
+														reject(new OAuthError({ name: 'invalid_scope', error_description: 'JWT does not contain required scope'}));
+													}
 												}
+											} catch (err) {
+												return reject(new OAuthError({ name: 'server_error', error_description: err.message }));
 											}
 											if (await redis.exists(`idToken::${idToken.id}::${idToken.exp}`)) {
 												// @ts-ignore
 												decipherJWT(req.query.refresh_token, 'refreshToken')
 													.then(async (refreshToken) => {
-														for (const scope of scopes) {
-															if (!refreshToken.scope.includes(scope)) {
-																reject(new OAuthError({ name: 'invalid_scope', error_description: 'JWT does not contain required scope'}));
+														try {
+															for (const scope of scopes) {
+																if (!refreshToken.scope.includes(scope)) {
+																	reject(new OAuthError({ name: 'invalid_scope', error_description: 'JWT does not contain required scope'}));
+																}
 															}
-														}
-														if (await redis.exists(`refreshToken::${refreshToken.id}::${refreshToken.exp}`)) {
-															// @ts-ignore
-															req.userRefresh = refreshToken;
-															// @ts-ignore
-															req.userId = idToken;
-															resolve(accessToken);
-														}
-														else {
-															reject(new OAuthError({ name: 'access_denied', error_description: 'Token does not exist' }));
+															if (await redis.exists(`refreshToken::${refreshToken.id}::${refreshToken.exp}`)) {
+																// @ts-ignore
+																req.userRefresh = refreshToken;
+																// @ts-ignore
+																req.userId = idToken;
+																resolve(accessToken);
+															}
+															else {
+																reject(new OAuthError({ name: 'access_denied', error_description: 'Token does not exist' }));
+															}
+														} catch (err) {
+															return reject(new OAuthError({ name: 'server_error', error_description: err.message }));
 														}
 													})
 													.catch(err => reject(new OAuthError({ name: 'invalid_request', error_description: 'Invalid refresh token'})));

@@ -76,6 +76,45 @@ export class AuthService extends BaseService <IAuthTokenRequest> {
 		});
 	}
 
+	autoLogin(idToken: string, code_challenge: string, state: string, redirectUri: string, clientId: string, scope: scopes, response: ExResponse): Promise<null> {
+		return new Promise<null>((resolve, reject) => {
+			decipherJWT(idToken, 'idToken')
+			.then(decodedIdToken => {
+				this.repository.getById(decodedIdToken.id)
+				.then(user => {
+					getJWT(user, state.slice(0, 8), constants.jwtExpiry.oneTimeAuthCodeExpiry, 'oneTimeAuthCode', scope)
+					.then(jwt => {
+						this.redis.setex(`oneTimeAuthCode::${user.id}::${state.slice(0, 8)}`, jwt.expiry, `${jwt.jwt}::${urlSafe(code_challenge)}::${urlSafe(redirectUri)}`)
+						.then(status => {
+							if (status) {
+								if (clientId === 'site') {
+									response.status(200);
+									response.json({code:jwt.jwt});
+									resolve(null);
+								}
+								else {
+									response.redirect(redirectUri + '?' + qs.stringify({code: jwt.jwt}));
+									resolve(null);
+								}
+							}
+							else {
+								return reject(new OAuthError({ name: 'access_denied', error_description: 'User does not exist' }));
+							}
+						})
+						.catch(err => {
+							reject(new OAuthError({ name: 'server_error', error_description: err?.message }))
+						});
+					})
+					.catch(err => {
+						return reject(new OAuthError({ name: 'server_error', error_description: err?.message }));
+					});
+				})
+				.catch(err => reject(new OAuthError({ name: 'server_error', error_description: err.message })));
+			})
+			.catch(err => reject(new OAuthError({ name: 'invalid_request', error_description: 'Invalid idToken' })));
+		});
+	}
+
 	getToken(code: string, codeVerifier: string): Promise<tokenResponse> {
 		return new Promise<tokenResponse>((resolve, reject) => {
 			decipherJWT(code, 'oneTimeAuthCode')
