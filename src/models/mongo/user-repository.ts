@@ -28,12 +28,12 @@ export class UserFormatter extends BaseFormatter implements IUserModel {
 
 @ProvideSingleton(UserRepository)
 export class UserRepository extends BaseRepository<IUserModel> {
-	protected modelName: string = 'users';
+	protected modelName: string = 'admin';
 	protected schema: Schema = new Schema({
 		name: { type: String, unique: true, required: true },
 		username: { type: String, unique: true, required: true },
 		password: { type: String, required: true },
-	});
+	}, { collection: this.modelName });
 	protected formatter = UserFormatter;
 	constructor(@inject(MongoConnector) protected dbConnection: MongoConnector) {
 		super();

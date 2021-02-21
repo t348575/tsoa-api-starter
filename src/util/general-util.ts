@@ -7,7 +7,7 @@ import {createHash} from 'crypto';
 import {IUserModel} from '../models/mongo/user-repository';
 import constants from '../constants';
 import {VerifyErrors} from 'jsonwebtoken';
-import {jwtSubjects} from '../models/types';
+import {jwtSubjects, jwtToken, scopes} from '../models/types';
 export const safeParse = (str: string, fallback: any = undefined) => {
 	try {
 		return JSON.parse(str);
@@ -58,10 +58,10 @@ export const parseMultiPartRequest = async (request: Request): Promise<void> => 
 	});
 };
 
-export function getJWT(user: IUserModel, state: string, expiresIn: number, subject: jwtSubjects): Promise<{ jwt: string, expiry: number }> {
+export function getJWT(user: IUserModel, state: string, expiresIn: number, subject: jwtSubjects, scope: scopes): Promise<{ jwt: string, expiry: number }> {
 	return new Promise<{ jwt: string, expiry: number }>((resolve, reject) => {
 		const expiry = Math.floor(new Date().getTime() / 1000) + expiresIn;
-		jwt.sign({ id: user.id, exp: expiry, stateSlice: state }, constants.privateKey, { algorithm: 'RS256', subject }, (err: Error | null, encoded: string | undefined) => {
+		jwt.sign({ id: user.id, exp: expiry, stateSlice: state, scope: scope }, constants.privateKey, { algorithm: 'RS256', subject }, (err: Error | null, encoded: string | undefined) => {
 			if (err) {
 				reject(err);
 			}
@@ -75,7 +75,7 @@ export function getJWT(user: IUserModel, state: string, expiresIn: number, subje
 	});
 }
 
-export function decipherJWT(token: string, subject: jwtSubjects, ignoreExpiration = false): Promise<any> {
+export function decipherJWT(token: string, subject: jwtSubjects, ignoreExpiration = false): Promise<jwtToken> {
 	return new Promise<any>((resolve, reject) => {
 		jwt.verify(token, constants.publicKey, { ignoreExpiration, clockTolerance: 2, subject }, (err: VerifyErrors | null, decoded: any | undefined) => {
 			if (err) {

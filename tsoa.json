@@ -9,14 +9,20 @@
         "securityDefinitions": {
             "oauth2": {
                 "type": "oauth2",
-                "authorizationUrl": "https://localhost/oauth/login",
-                "tokenUrl": "https://localhost/oauth/token",
-                "refreshUrl": "https://localhost/oauth/refresh",
+                "authorizationUrl": "https://amrita-elective.tk/oauth/login",
+                "tokenUrl": "https://amrita-elective.tk/oauth/token",
+                "refreshUrl": "https://amrita-elective.tk/oauth/refresh",
                 "flow": "accessCode",
                 "scopes": {
-                    "a": "abc",
-                    "b": "cde"
+                    "student": "student",
+                    "teacher": "teacher",
+                    "admin": "admin"
                 }
+            },
+            "access_token": {
+                "type": "https",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
             }
         }
     },

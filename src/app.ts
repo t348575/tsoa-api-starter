@@ -8,7 +8,10 @@ import morgan from 'morgan';
 import { RegisterRoutes } from './routes/routes';
 import {Logger} from './shared/logger';
 import {ApiError, OAuthError} from './shared/error-handler';
+import cors from 'cors';
+import * as fs from 'fs';
 export const app = express();
+app.use(cors())
 app.use(morgan(function (tokens, req, res) {
 	return [
 		tokens.method(req, res),
@@ -26,11 +29,14 @@ app.use(bodyParser.json());
 
 app.use('/docs', swaggerUi.serve, async (_req: ExRequest, res: ExResponse) => {
 	return res.send(
-		swaggerUi.generateHTML(await import(path.resolve('./build/src/swagger.json')), { explorer: true, swaggerOptions: { deepLinking: true, oauth: { clientId: 'site', usePkceWithAuthorizationCodeGrant: true }}})
+		swaggerUi.generateHTML(await import(path.resolve('./build/src/swagger.json')), { explorer: true, swaggerOptions: { deepLinking: true, oauth: { clientId: 'api', usePkceWithAuthorizationCodeGrant: true }}})
 	);
 });
 
-console.log(path.resolve(__dirname, './../resources/public'));
+app.use('/swagger', (req, res) => {
+	return res.send(fs.readFileSync(path.join(__dirname, 'swagger.json')))
+})
+
 app.use(express.static(path.resolve(__dirname, './../resources/public')));
 
 RegisterRoutes(app);
